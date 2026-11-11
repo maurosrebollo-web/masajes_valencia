@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masajes Valencia - Bienestar y Terapia Corporal</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconos de FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- NAV / ENCABEZADO -->
+    <header>
+        <div class="logo">
+            <h2>Masajes Valencia</h2>
+        </div>
+        <nav>
+            <a href="#servicios">Servicios</a>
+            <a href="#sobre-mi">Sobre Mí</a>
+            <a href="#blog">Blog & Videos</a>
+            <a href="#reservas">Agendar Cita</a>
+            <a href="#pagos">Pagos</a>
+            <a href="#resenas">Reseñas</a>
+            <a href="admin.html" class="btn-admin">Acceso Masajista</a>
+        </nav>
+    </header>
+
+    <!-- HERO / SECCIÓN PRINCIPAL -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Tu espacio de calma y recuperación en Valencia</h1>
+            <p>Masajes terapéuticos, relajantes y descontracturantes adaptados a las necesidades de tu cuerpo.</p>
+            <div class="hero-buttons">
+                <a href="#reservas" class="btn-primary">Reservar Cita Online</a>
+                <a href="https://wa.me/34600000000?text=Hola,%20me%20gustaria%20consultar%20disponibilidad%20para%20un%20masaje" target="_blank" class="btn-whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i> Agendar por WhatsApp
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOBRE MÍ / FILOSOFÍA -->
+    <section id="sobre-mi" class="section container">
+        <div class="about-grid">
+            <div class="about-text">
+                <h2>Sobre Mí y mi Forma de Trabajo</h2>
+                <p>Hola, me dedico a la terapia corporal enfocada en aliviar tensiones musculares, reducir el estrés acumulado y devolver la movilidad a tu cuerpo.</p>
+                <p>Trabajo en una consulta privada acondicionada para garantizar el máximo confort (aromaterapia, música relajante y ambiente climatizado), utilizando aceites de alta calidad y aplicando técnicas de masaje personalizadas para cada cliente.</p>
+            </div>
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=600&q=80" alt="Espacio de Masajes Valencia">
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICIOS Y TARIFAS (DINÁMICO) -->
+    <section id="servicios" class="section bg-light">
+        <div class="container">
+            <h2 class="section-title">Nuestros Masajes y Servicios</h2>
+            <div class="services-grid" id="contenedor-servicios-publico">
+                <!-- Se cargan dinámicamente desde localStorage -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE BLOG Y VIDEOS (DINÁMICO) -->
+    <section id="blog" class="section container">
+        <h2 class="section-title">Blog, Consejos y Videos de Experiencias</h2>
+        <div class="services-grid" id="contenedor-blog-publico">
+            <!-- Se cargan dinámicamente desde localStorage -->
+        </div>
+    </section>
+
+    <!-- AGENDAMIENTO Y DISPONIBILIDAD DE CITAS -->
+    <section id="reservas" class="section bg-light">
+        <div class="container">
+            <h2 class="section-title">Agendar o Gestionar tu Cita</h2>
+            <div class="booking-wrapper">
+                <!-- Formulario de Reserva con Cuestionario de Salud -->
+                <div class="booking-box">
+                    <h3>1. Selecciona Turno y Preferencias</h3>
+                    <form id="form-reserva">
+                        <div class="form-group">
+                            <label for="servicio-select">Tipo de Masaje y Duración:</label>
+                            <select id="servicio-select" required>
+                                <!-- Se carga dinámicamente con opciones de 50 y 80 min -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha-reserva">Fecha:</label>
+                            <input type="date" id="fecha-reserva" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora-reserva">Hora Disponible:</label>
+                            <select id="hora-reserva" required>
+                                <!-- Se carga dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre-cliente">Nombre Completo:</label>
+                            <input type="text" id="nombre-cliente" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono-cliente">Teléfono de contacto:</label>
+                            <input type="tel" id="telefono-cliente" placeholder="Ej: 612 345 678" required>
+                        </div>
+
+                        <!-- Cuestionario de Salud y Preferencias -->
+                        <div class="form-group">
+                            <label for="alergias-cliente">¿Es alérgico/a a alguna crema, aceite o componente (ej. almendras, lavanda)?</label>
+                            <input type="text" id="alergias-cliente" placeholder="Indicar si tiene alergias o 'Ninguna'">
+                        </div>
+                        <div class="form-group">
+                            <label for="lesiones-cliente">¿Tiene alguna lesión o operación reciente? ¿En qué zona?</label>
+                            <input type="text" id="lesiones-cliente" placeholder="Indicar zona o 'Ninguna'">
+                        </div>
+                        <div class="form-group">
+                            <label for="enfoque-cliente">¿Prefiere masaje completo o localizado en una zona particular?</label>
+                            <input type="text" id="enfoque-cliente" placeholder="Ej: Masaje completo / Localizado en espalda y cuello">
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-block">Confirmar Reserva</button>
+                    </form>
+                </div>
+
+                <!-- Cancelar Cita -->
+                <div class="cancel-box">
+                    <h3>¿Necesitas cancelar o consultar una reserva?</h3>
+                    <p>Ingresa el número de teléfono con el que realizaste la reserva para liberar tu turno.</p>
+                    <div class="form-group">
+                        <input type="tel" id="telefono-cancelar" placeholder="Ingresa tu teléfono">
+                    </div>
+                    <button id="btn-cancelar" class="btn-danger btn-block">Buscar y Cancelar Cita</button>
+                    <div id="mensaje-cancelacion" class="mensaje-status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MÉTODOS DE PAGO -->
+    <section id="pagos" class="section text-center">
+        <div class="container">
+            <h2>Formas de Pago Aceptadas</h2>
+            <p>Aceptamos múltiples métodos de pago en el local y para reservas a domicilio:</p>
+            <div class="payment-methods">
+                <div class="pay-card"><i class="fa-solid fa-money-bill-wave"></i><span>Efectivo</span></div>
+                <div class="pay-card"><i class="fa-solid fa-credit-card"></i><span>Tarjeta Débito/Crédito</span></div>
+                <div class="pay-card"><i class="fa-solid fa-mobile-screen-button"></i><span>Bizum</span></div>
+                <div class="pay-card"><i class="fa-solid fa-building-columns"></i><span>Transferencia</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESEÑAS DE CLIENTES -->
+    <section id="resenas" class="section bg-light container">
+        <h2 class="section-title">Lo que opinan nuestros clientes</h2>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"El masaje descontracturante me salvó la espalda. Tenía mucha carga por el trabajo y salí renovado. 100% recomendable."</p>
+                <h4>- Carlos M.</h4>
+            </div>
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Trato superprofesional y la consulta transmite mucha tranquilidad. El servicio a domicilio también es puntualísimo."</p>
+                <h4>- Laura G.</h4>
+            </div>
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Reservé por la web en 1 minuto. El masaje combinado es excelente para liberar piernas y zona lumbar."</p>
+                <h4>- Javier R.</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Masajes Valencia. Todos los derechos reservados.</p>
+            <p>Dirección: Calle Gran Vía 12, Valencia | Tel: +34 600 000 000</p>
+        </div>
+    </footer>
+
+    <!-- BOTÓN FLOTANTE WHATSAPP -->
+    <a href="https://wa.me/34600000000?text=Hola,%20quisiera%20pedir%20informacion%20sobre%20los%20masajes" class="whatsapp-float" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- SCRIPT (O se puede enlazar con <script src="script.js"></script>) -->
+    <script src="script.js"></script>
+</body>
+</html>

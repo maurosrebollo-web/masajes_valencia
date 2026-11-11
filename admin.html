@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Masajes Valencia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-section {
+            background: #faf8f5;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+        .admin-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .admin-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .admin-form-group label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+        .admin-form-group input, .admin-form-group select, .admin-form-group textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        .admin-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 6px;
+            border: 1px solid #eee;
+            background: white;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: #e2dcd0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--color-dark);
+            transition: var(--transition);
+        }
+        .tab-btn.active {
+            background: var(--color-primary);
+            color: white;
+        }
+        .panel-tab-content {
+            display: none;
+        }
+        .panel-tab-content.active {
+            display: block;
+        }
+        .table-img-preview {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .badge-duracion {
+            background: #e2dcd0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h2>Panel de Control - Masajes Valencia</h2>
+        </div>
+        <nav>
+            <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Volver a la Web</a>
+        </nav>
+    </header>
+
+    <section class="container section">
+        <h2 class="section-title">Panel de Gestión Integral</h2>
+
+        <!-- BOTONES DE PESTAÑAS -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="cambiarTab('citas')"><i class="fa-solid fa-calendar-days"></i> Agenda & Horarios</button>
+            <button class="tab-btn" onclick="cambiarTab('servicios')"><i class="fa-solid fa-spa"></i> Servicios & Precios</button>
+            <button class="tab-btn" onclick="cambiarTab('blog')"><i class="fa-solid fa-blog"></i> Blog & Videos</button>
+            <button class="tab-btn" onclick="cambiarTab('historial')"><i class="fa-solid fa-clock-rotate-left"></i> Historial de Clientes</button>
+        </div>
+
+        <!-- ================= TAB 1: CITAS Y HORARIOS ================= -->
+        <div id="tab-citas" class="panel-tab-content active">
+            
+            <!-- GESTOR DE HORARIOS BASE -->
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-clock"></i> Configurar Franjas Horarias de Trabajo</h3>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Añade o elimina las horas disponibles que aparecerán en el selector de la web pública.</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                    <input type="text" id="nuevo-horario-input" placeholder="Ej: 20:30" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 150px;">
+                    <button type="button" id="btn-agregar-horario" class="btn-primary" style="padding: 8px 15px;"><i class="fa-solid fa-plus"></i> Añadir Hora</button>
+                </div>
+                <div id="contenedor-horarios-base" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- AÑADIR RESERVA MANUAL -->
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-plus-circle"></i> Añadir Reserva Manual (Teléfono / WhatsApp)</h3>
+                <form id="form-admin-reserva">
+                    <div class="admin-form-grid">
+                        <div class="admin-form-group">
+                            <label>Cliente:</label>
+                            <input type="text" id="admin-nombre" placeholder="Nombre completo" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Teléfono:</label>
+                            <input type="tel" id="admin-telefono" placeholder="Ej: 612345678" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Servicio y Duración:</label>
+                            <select id="admin-servicio" required></select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Fecha:</label>
+                            <input type="date" id="admin-fecha" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Hora:</label>
+                            <select id="admin-hora" required></select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Alergias / Cremas:</label>
+                            <input type="text" id="admin-alergias" placeholder="Ninguna">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Lesiones / Operaciones:</label>
+                            <input type="text" id="admin-lesiones" placeholder="Ninguna">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Preferencia:</label>
+                            <input type="text" id="admin-enfoque" placeholder="General o localizado">
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> Guardar Cita</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- AGENDA -->
+            <div class="admin-section">
+                <div class="admin-actions-bar">
+                    <h3 style="margin: 0;"><i class="fa-solid fa-calendar-check"></i> Turnos Agendados</h3>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <label>Filtrar por día:</label>
+                        <input type="date" id="filtro-fecha" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+                        <button id="btn-mostrar-todo" class="btn-secondary" style="padding: 7px 12px;">Ver Todos</button>
+                    </div>
+                </div>
+                <div class="table-container" id="contenedor-agenda-admin"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: SERVICIOS Y PRECIOS ================= -->
+        <div id="tab-servicios" class="panel-tab-content">
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-circle-plus"></i> Añadir Nuevo Servicio / Masaje</h3>
+                <form id="form-nuevo-servicio">
+                    <div class="admin-form-grid">
+                        <div class="admin-form-group">
+                            <label>Nombre del Masaje:</label>
+                            <input type="text" id="srv-nombre" placeholder="Ej: Masaje con Piedras" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Precio de Referencia:</label>
+                            <input type="text" id="srv-precio" placeholder="Ej: 40€ / 50 min" required>
+                        </div>
+                        <div class="admin-form-group" style="grid-column: 1 / -1;">
+                            <label>Subir Foto desde el Ordenador:</label>
+                            <input type="file" id="srv-imagen-file" accept="image/*" required>
+                        </div>
+                        <div class="admin-form-group" style="grid-column: 1 / -1;">
+                            <label>Descripción corta:</label>
+                            <textarea id="srv-desc" rows="2" placeholder="Breve explicación..." required></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Publicar Servicio</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-list"></i> Servicios Actuales en la Web</h3>
+                <div class="table-container" id="contenedor-servicios-admin"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: BLOG Y VIDEOS ================= -->
+        <div id="tab-blog" class="panel-tab-content">
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-video"></i> Publicar en el Blog / Experiencias y Videos</h3>
+                <form id="form-nuevo-blog">
+                    <div class="admin-form-grid">
+                        <div class="admin-form-group">
+                            <label>Título de la Experiencia:</label>
+                            <input type="text" id="blog-titulo" placeholder="Ej: Alivio lumbar" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Subir Video Local (.mp4):</label>
+                            <input type="file" id="blog-video-file" accept="video/*">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>O Enlace URL externa:</label>
+                            <input type="url" id="blog-video-url" placeholder="https://www.youtube.com/embed/...">
+                        </div>
+                        <div class="admin-form-group" style="grid-column: 1 / -1;">
+                            <label>Contenido / Experiencia:</label>
+                            <textarea id="blog-texto" rows="3" placeholder="Detalles..." required></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-upload"></i> Publicar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-newspaper"></i> Entradas del Blog Publicadas</h3>
+                <div class="table-container" id="contenedor-blog-admin"></div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: HISTORIAL DE CLIENTES ================= -->
+        <div id="tab-historial" class="panel-tab-content">
+            <div class="admin-section">
+                <h3><i class="fa-solid fa-address-book"></i> Base de Datos e Historial de Masajes</h3>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Busca por nombre, teléfono o fecha para consultar las sesiones anteriores.</p>
+                
+                <div class="admin-form-grid" style="margin-bottom: 20px;">
+                    <div class="admin-form-group">
+                        <label>Buscar por Nombre o Teléfono:</label>
+                        <input type="text" id="busqueda-historial" placeholder="Ej: Carlos o 612345...">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Filtrar por Fecha Específica:</label>
+                        <input type="date" id="filtro-fecha-historial">
+                    </div>
+                    <div class="admin-form-group" style="display: flex; align-items: flex-end;">
+                        <button type="button" id="btn-limpiar-busqueda" class="btn-secondary" style="width: 100%; padding: 10px;">Limpiar Filtros</button>
+                    </div>
+                </div>
+
+                <div class="table-container" id="contenedor-historial-admin"></div>
+            </div>
+        </div>
+
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 Masajes Valencia - Panel de Administración</p>
+        </div>
+    </footer>
+
+    <script>
+        function cambiarTab(tabName) {
+            document.querySelectorAll('.panel-tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Procesar historial y vencidos al entrar al admin
+            procesarHistorialYVencidosAdmin();
+
+            function procesarHistorialYVencidosAdmin() {
+                let reservas = JSON.parse(localStorage.getItem('masajes_reservas')) || [];
+                let historial = JSON.parse(localStorage.getItem('masajes_historial')) || [];
+                const ahora = new Date();
+                let reservasActivas = [];
+
+                reservas.forEach(r => {
+                    const fechaHoraTurno = new Date(`${r.fecha}T${r.hora}:00`);
+                    if (fechaHoraTurno > ahora) {
+                        reservasActivas.push(r);
+                    } else {
+                        const yaExiste = historial.some(h => h.id === r.id);
+                        if (!yaExiste) {
+                            historial.push({ ...r, estado: "Completado / Atendido" });
+                        }
+                    }
+                });
+                localStorage.setItem('masajes_reservas', JSON.stringify(reservasActivas));
+                localStorage.setItem('masajes_historial', JSON.stringify(historial));
+            }
+
+            // GESTIÓN DE HORARIOS BASE
+            const horariosDefault = ["10:00", "11:30", "16:00", "17:30", "19:00"];
+            function obtenerHorarios() {
+                return JSON.parse(localStorage.getItem('masajes_horarios')) || horariosDefault;
+            }
+
+            function renderizarGestorHorarios() {
+                let horarios = obtenerHorarios();
+                const contenedor = document.getElementById('contenedor-horarios-base');
+                const selectAdminHora = document.getElementById('admin-hora');
+                if(!contenedor || !selectAdminHora) return;
+                
+                contenedor.innerHTML = '';
+                selectAdminHora.innerHTML = '';
+
+                horarios.forEach((h, index) => {
+                    const pill = document.createElement('div');
+                    pill.style.cssText = "background: #fff; border: 1px solid #ccc; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-weight: 600;";
+                    pill.innerHTML = `${h} hs <button type="button" onclick="eliminarHorario(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>`;
+                    contenedor.appendChild(pill);
+
+                    const opt = document.createElement('option');
+                    opt.value = h;
+                    opt.textContent = `${h} hs`;
+                    selectAdminHora.appendChild(opt);
+                });
+            }
+
+            window.eliminarHorario = function(index) {
+                let horarios = obtenerHorarios();
+                horarios.splice(index, 1);
+                localStorage.setItem('masajes_horarios', JSON.stringify(horarios));
+                renderizarGestorHorarios();
+            };
+
+            const btnAddH = document.getElementById('btn-agregar-horario');
+            if(btnAddH) {
+                btnAddH.addEventListener('click', () => {
+                    const nuevoH = document.getElementById('nuevo-horario-input').value.trim();
+                    if(!nuevoH) return;
+                    let horarios = obtenerHorarios();
+                    if(!horarios.includes(nuevoH)) {
+                        horarios.push(nuevoH);
+                        horarios.sort();
+                        localStorage.setItem('masajes_horarios', JSON.stringify(horarios));
+                        document.getElementById('nuevo-horario-input').value = '';
+                        renderizarGestorHorarios();
+                        alert("¡Horario añadido con éxito!");
+                    } else {
+                        alert("Ese horario ya existe.");
+                    }
+                });
+            }
+            renderizarGestorHorarios();
+
+            // CARGAR SERVICIOS EN SELECT ADMIN (50 y 80 min)
+            function cargarServiciosAdminSelect() {
+                let servicios = JSON.parse(localStorage.getItem('masajes_catalogo')) || [
+                    { id: 1, nombre: "Masaje Relajante", precio: "40€ / 50 min" },
+                    { id: 2, nombre: "Masaje Descontracturante", precio: "45€ / 50 min" }
+                ];
+                const selectAdminSrv = document.getElementById('admin-servicio');
+                if(!selectAdminSrv) return;
+                selectAdminSrv.innerHTML = '';
+
+                servicios.forEach(s => {
+                    const opt50 = document.createElement('option');
+                    opt50.value = `${s.nombre} (50 min)`;
+                    opt50.textContent = `${s.nombre} - 50 minutos`;
+                    selectAdminSrv.appendChild(opt50);
+
+                    const opt80 = document.createElement('option');
+                    opt80.value = `${s.nombre} (80 min)`;
+                    opt80.textContent = `${s.nombre} - 80 minutos (Extendida)`;
+                    selectAdminSrv.appendChild(opt80);
+                });
+            }
+            cargarServiciosAdminSelect();
+
+            // CITAS
+            const contenedorAgenda = document.getElementById('contenedor-agenda-admin');
+            const filtroFecha = document.getElementById('filtro-fecha');
+            const btnMostrarTodo = document.getElementById('btn-mostrar-todo');
+            const formAdmin = document.getElementById('form-admin-reserva');
+            const inputAdminFecha = document.getElementById('admin-fecha');
+
+            const hoy = new Date().toISOString().split('T')[0];
+            if(inputAdminFecha) inputAdminFecha.value = hoy;
+
+            function renderizarAgenda(fechaFiltrada = null) {
+                let reservas = JSON.parse(localStorage.getItem('masajes_reservas')) || [];
+                if(fechaFiltrada) reservas = reservas.filter(r => r.fecha === fechaFiltrada);
+                reservas.sort((a, b) => new Date(a.fecha + 'T' + a.hora) - new Date(b.fecha + 'T' + b.hora));
+
+                if (reservas.length === 0) {
+                    contenedorAgenda.innerHTML = `<p style="text-align:center; padding: 25px; color:#666;">No hay turnos agendados.</p>`;
+                    return;
+                }
+
+                let html = `<table style="width:100%; border-collapse: collapse; min-width: 800px;">
+                    <thead>
+                        <tr style="background-color: var(--color-primary); color: white; text-align: left;">
+                            <th style="padding:12px;">Hora / Fecha</th>
+                            <th style="padding:12px;">Cliente</th>
+                            <th style="padding:12px;">Servicio & Duración</th>
+                            <th style="padding:12px;">Alergias</th>
+                            <th style="padding:12px;">Lesiones</th>
+                            <th style="padding:12px;">Preferencia</th>
+                            <th style="padding:12px; text-align:center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                reservas.forEach((r) => {
+                    let alertaAlergia = (r.alergias && r.alergias.toLowerCase() !== 'ninguna') ? '#d9534f' : '#333';
+                    let alertaLesion = (r.lesiones && r.lesiones.toLowerCase() !== 'ninguna') ? '#d9534f' : '#333';
+
+                    html += `<tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding:12px; font-weight:bold; color:var(--color-primary);">${r.hora} hs<br><span style="font-size:0.8rem; color:#666;">${r.fecha}</span></td>
+                        <td style="padding:12px;">${r.nombre}<br><a href="https://wa.me/34${r.telefono ? r.telefono.replace(/\s+/g, '') : ''}" target="_blank" style="color:#25d366; font-size:0.9rem;"><i class="fa-brands fa-whatsapp"></i> ${r.telefono}</a></td>
+                        <td style="padding:12px;"><span class="badge-duracion">${r.servicio}</span></td>
+                        <td style="padding:12px; color: ${alertaAlergia}; font-weight: ${alertaAlergia === '#d9534f' ? 'bold' : 'normal'};">${r.alergias || 'Ninguna'}</td>
+                        <td style="padding:12px; color: ${alertaLesion}; font-weight: ${alertaLesion === '#d9534f' ? 'bold' : 'normal'};">${r.lesiones || 'Ninguna'}</td>
+                        <td style="padding:12px;">${r.enfoque || 'General'}</td>
+                        <td style="padding:12px; text-align:center;">
+                            <button onclick="eliminarReserva(${r.id})" style="background-color: #d9534f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-trash"></i> Cancelar</button>
+                        </td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table>`;
+                contenedorAgenda.innerHTML = html;
+            }
+
+            if(formAdmin) {
+                formAdmin.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    let reservas = JSON.parse(localStorage.getItem('masajes_reservas')) || [];
+                    reservas.push({
+                        id: Date.now(),
+                        nombre: document.getElementById('admin-nombre').value,
+                        telefono: document.getElementById('admin-telefono').value,
+                        servicio: document.getElementById('admin-servicio').value,
+                        fecha: document.getElementById('admin-fecha').value,
+                        hora: document.getElementById('admin-hora').value,
+                        alergias: document.getElementById('admin-alergias').value || 'Ninguna',
+                        lesiones: document.getElementById('admin-lesiones').value || 'Ninguna',
+                        enfoque: document.getElementById('admin-enfoque').value || 'General'
+                    });
+                    localStorage.setItem('masajes_reservas', JSON.stringify(reservas));
+                    alert("¡Cita agregada correctamente!");
+                    formAdmin.reset();
+                    inputAdminFecha.value = hoy;
+                    renderizarAgenda();
+                });
+            }
+
+            window.eliminarReserva = function(id) {
+                if(confirm("¿Cancelar este turno?")) {
+                    let reservas = JSON.parse(localStorage.getItem('masajes_reservas')) || [];
+                    reservas = reservas.filter(r => r.id !== id);
+                    localStorage.setItem('masajes_reservas', JSON.stringify(reservas));
+                    renderizarAgenda(filtroFecha ? filtroFecha.value : null);
+                }
+            };
+
+            if(filtroFecha) filtroFecha.addEventListener('change', () => renderizarAgenda(filtroFecha.value));
+            if(btnMostrarTodo) btnMostrarTodo.addEventListener('click', () => { filtroFecha.value = ''; renderizarAgenda(); });
+            renderizarAgenda();
+
+            // SERVICIOS
+            const formSrv = document.getElementById('form-nuevo-servicio');
+            const contenedorSrvAdmin = document.getElementById('contenedor-servicios-admin');
+
+            function renderizarServiciosAdmin() {
+                let servicios = JSON.parse(localStorage.getItem('masajes_catalogo')) || [
+                    { id: 1, nombre: "Masaje Relajante", precio: "40€ / 50 min", desc: "Movimientos suaves y fluidos para calmar el sistema nervioso.", imagen: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=500&q=80" },
+                    { id: 2, nombre: "Masaje Descontracturante", precio: "45€ / 50 min", desc: "Técnica profunda orientada a liberar nudos y sobrecargas.", imagen: "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=500&q=80" }
+                ];
+
+                let html = `<table style="width:100%; border-collapse: collapse;">
+                    <thead><tr style="background-color: #c2a68c; color: white; text-align: left;">
+                        <th style="padding:12px;">Foto</th><th style="padding:12px;">Servicio</th><th style="padding:12px;">Precio</th><th style="padding:12px; text-align:center;">Acción</th>
+                    </tr></thead><tbody>`;
+
+                servicios.forEach((s, index) => {
+                    html += `<tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding:12px;"><img src="${s.imagen}" class="table-img-preview" alt="Foto"></td>
+                        <td style="padding:12px; font-weight:bold;">${s.nombre}</td>
+                        <td style="padding:12px; color:var(--color-primary); font-weight:bold;">${s.precio}</td>
+                        <td style="padding:12px; text-align:center;">
+                            <button onclick="eliminarServicio(${index})" style="background-color: #d9534f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;">Eliminar</button>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+                contenedorSrvAdmin.innerHTML = html;
+            }
+
+            if(formSrv) {
+                formSrv.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const archivoInput = document.getElementById('srv-imagen-file');
+                    const file = archivoInput.files[0];
+
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const base64Image = event.target.result;
+                            let servicios = JSON.parse(localStorage.getItem('masajes_catalogo')) || [];
+                            
+                            servicios.push({
+                                id: Date.now(),
+                                nombre: document.getElementById('srv-nombre').value,
+                                precio: document.getElementById('srv-precio').value,
+                                desc: document.getElementById('srv-desc').value,
+                                imagen: base64Image
+                            });
+
+                            localStorage.setItem('masajes_catalogo', JSON.stringify(servicios));
+                            alert("¡Servicio añadido con éxito!");
+                            formSrv.reset();
+                            renderizarServiciosAdmin();
+                            cargarServiciosAdminSelect();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            window.eliminarServicio = function(index) {
+                let servicios = JSON.parse(localStorage.getItem('masajes_catalogo')) || [];
+                servicios.splice(index, 1);
+                localStorage.setItem('masajes_catalogo', JSON.stringify(servicios));
+                renderizarServiciosAdmin();
+                cargarServiciosAdminSelect();
+            };
+            renderizarServiciosAdmin();
+
+            // BLOG
+            const formBlog = document.getElementById('form-nuevo-blog');
+            const contenedorBlogAdmin = document.getElementById('contenedor-blog-admin');
+
+            function renderizarBlogAdmin() {
+                let posts = JSON.parse(localStorage.getItem('masajes_blog')) || [];
+                if(posts.length === 0) {
+                    contenedorBlogAdmin.innerHTML = `<p style="padding: 20px; text-align: center; color: #666;">No hay publicaciones.</p>`;
+                    return;
+                }
+
+                let html = `<table style="width:100%; border-collapse: collapse;">
+                    <thead><tr style="background-color: #5c6b53; color: white; text-align: left;">
+                        <th style="padding:12px;">Título</th><th style="padding:12px; text-align:center;">Acción</th>
+                    </tr></thead><tbody>`;
+
+                posts.forEach((p, index) => {
+                    html += `<tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding:12px; font-weight:bold;">${p.titulo}</td>
+                        <td style="padding:12px; text-align:center;">
+                            <button onclick="eliminarPost(${index})" style="background-color: #d9534f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer;">Borrar</button>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+                contenedorBlogAdmin.innerHTML = html;
+            }
+
+            if(formBlog) {
+                formBlog.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const videoFile = document.getElementById('blog-video-file').files[0];
+                    const videoUrl = document.getElementById('blog-video-url').value;
+                    const titulo = document.getElementById('blog-titulo').value;
+                    const texto = document.getElementById('blog-texto').value;
+
+                    if (videoFile) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            guardarPostEnStorage(titulo, event.target.result, texto, 'local');
+                        };
+                        reader.readAsDataURL(videoFile);
+                    } else if (videoUrl) {
+                        guardarPostEnStorage(titulo, videoUrl, texto, 'url');
+                    } else {
+                        alert("Por favor sube un archivo de video local o introduce una URL.");
+                    }
+                });
+            }
+
+            function guardarPostEnStorage(titulo, fuenteVideo, texto, tipo) {
+                let posts = JSON.parse(localStorage.getItem('masajes_blog')) || [];
+                posts.push({
+                    id: Date.now(),
+                    titulo: titulo,
+                    video: fuenteVideo,
+                    texto: texto,
+                    tipoVideo: tipo
+                });
+                localStorage.setItem('masajes_blog', JSON.stringify(posts));
+                alert("¡Publicación añadida con éxito!");
+                formBlog.reset();
+                renderizarBlogAdmin();
+            }
+
+            window.eliminarPost = function(index) {
+                let posts = JSON.parse(localStorage.getItem('masajes_blog')) || [];
+                posts.splice(index, 1);
+                localStorage.setItem('masajes_blog', JSON.stringify(posts));
+                renderizarBlogAdmin();
+            };
+            renderizarBlogAdmin();
+
+            // HISTORIAL Y BUSCADOR
+            const inputBusqueda = document.getElementById('busqueda-historial');
+            const inputFiltroFechaH = document.getElementById('filtro-fecha-historial');
+            const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
+            const contenedorHistorialAdmin = document.getElementById('contenedor-historial-admin');
+
+            function renderizarHistorial(filtroTexto = '', filtroFecha = '') {
+                let historial = JSON.parse(localStorage.getItem('masajes_historial')) || [];
+
+                if (filtroTexto) {
+                    const texto = filtroTexto.toLowerCase();
+                    historial = historial.filter(h => 
+                        h.nombre.toLowerCase().includes(texto) || h.telefono.includes(texto)
+                    );
+                }
+
+                if (filtroFecha) {
+                    historial = historial.filter(h => h.fecha === filtroFecha);
+                }
+
+                historial.sort((a, b) => new Date(b.fecha + 'T' + b.hora) - new Date(a.fecha + 'T' + a.hora));
+
+                if (historial.length === 0) {
+                    contenedorHistorialAdmin.innerHTML = `<p style="text-align:center; padding: 25px; color:#666;">No se encontraron registros en el historial.</p>`;
+                    return;
+                }
+
+                let html = `<table style="width:100%; border-collapse: collapse; min-width: 800px;">
+                    <thead>
+                        <tr style="background-color: var(--color-primary); color: white; text-align: left;">
+                            <th style="padding:12px;">Fecha / Hora</th>
+                            <th style="padding:12px;">Cliente</th>
+                            <th style="padding:12px;">Servicio & Duración</th>
+                            <th style="padding:12px;">Alergias Registradas</th>
+                            <th style="padding:12px;">Lesiones / Zona</th>
+                            <th style="padding:12px;">Preferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                historial.forEach((h) => {
+                    html += `<tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding:12px; font-weight:bold; color:var(--color-primary);">${h.fecha}<br><span style="font-size:0.8rem; color:#666;">${h.hora} hs</span></td>
+                        <td style="padding:12px;">${h.nombre}<br><a href="https://wa.me/34${h.telefono ? h.telefono.replace(/\s+/g, '') : ''}" target="_blank" style="color:#25d366; font-size:0.9rem;"><i class="fa-brands fa-whatsapp"></i> ${h.telefono}</a></td>
+                        <td style="padding:12px;"><span class="badge-duracion">${h.servicio}</span></td>
+                        <td style="padding:12px; color:#555;">${h.alergias || 'Ninguna'}</td>
+                        <td style="padding:12px; color:#555;">${h.lesiones || 'Ninguna'}</td>
+                        <td style="padding:12px; color:#555;">${h.enfoque || 'General'}</td>
+                    </tr>`;
+                });
+
+                html += `</tbody></table>`;
+                contenedorHistorialAdmin.innerHTML = html;
+            }
+
+            if(inputBusqueda) {
+                inputBusqueda.addEventListener('input', () => {
+                    renderizarHistorial(inputBusqueda.value, inputFiltroFechaH.value);
+                });
+            }
+
+            if(inputFiltroFechaH) {
+                inputFiltroFechaH.addEventListener('change', () => {
+                    renderizarHistorial(inputBusqueda.value, inputFiltroFechaH.value);
+                });
+            }
+
+            if(btnLimpiarBusqueda) {
+                btnLimpiarBusqueda.addEventListener('click', () => {
+                    inputBusqueda.value = '';
+                    inputFiltroFechaH.value = '';
+                    renderizarHistorial();
+                });
+            }
+
+            renderizarHistorial();
+        });
+    </script>
+</body>
+</html>
